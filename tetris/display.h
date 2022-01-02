@@ -33,14 +33,16 @@ extern const psd_colour PSD_BLACK;
 extern const psd_colour PSD_RED;
 extern const psd_colour PSD_GREEN;
 extern const psd_colour PSD_BLUE;
+extern const psd_colour PSD_WHITE;
 
 typedef struct
 {
   psd_vec pos;
   psd_vec size;
   const uint32_t* data;
-  uint32_t depth : 6;
+  uint32_t depth : 5;
   uint32_t enabled : 1;
+  uint32_t used : 1;
   uint32_t draw : 1;
   uint32_t data_len : 24;
 } psd_sprite;
@@ -60,6 +62,7 @@ void ps_display_init(PS_DISPLAY* disp, psd_colour background);
 
 psd_sprite* ps_display_add_sprite(PS_DISPLAY* disp, psd_vec pos, psd_vec size, const uint32_t* data, uint32_t data_len);
 void ps_display_move_sprite(PS_DISPLAY* disp, psd_sprite* sprite, psd_vec pos);
+void ps_display_remove_sprite(PS_DISPLAY* disp, psd_sprite* sprite);
 
 void ps_display_draw_rect(PS_DISPLAY* disp, psd_vec pos, psd_vec size, psd_colour colour);
 void ps_display_draw_frect(PS_DISPLAY* disp, psd_vec pos, psd_vec size, psd_colour colour);

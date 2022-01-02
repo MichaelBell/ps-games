@@ -1,5 +1,7 @@
 #include "pico/stdlib.h"
 
+#include "string.h"
+
 #include "display.h"
 
 #include "hardware/dma.h"
@@ -10,6 +12,7 @@ const psd_colour PSD_BLACK = {.c = 0};
 const psd_colour PSD_RED = {.r = 0x1f};
 const psd_colour PSD_GREEN = {.g = 0x3f};
 const psd_colour PSD_BLUE = {.b = 0x1f};
+const psd_colour PSD_WHITE = {.c = 0xffff};
 
 void ps_display_init(PS_DISPLAY* disp, psd_colour bg)
 {
@@ -24,6 +27,8 @@ void ps_display_init(PS_DISPLAY* disp, psd_colour bg)
   st7789_repeat_pixel(&disp->st, disp->background.c, DISPLAY_ROWS * DISPLAY_COLS);
   st7789_trigger_transfer(&disp->st);
   st7789_wait_for_transfer_complete(&disp->st);
+
+  memset(disp->sprites, 0, sizeof(disp->sprites));
 }
 
 void ps_display_draw_rect(PS_DISPLAY* disp, psd_vec pos, psd_vec size, psd_colour colour)
@@ -39,12 +44,20 @@ void ps_display_draw_frect(PS_DISPLAY* disp, psd_vec pos, psd_vec size, psd_colo
 
 psd_sprite* ps_display_add_sprite(PS_DISPLAY* disp, psd_vec pos, psd_vec size, const uint32_t* data, uint32_t data_len)
 {
-  psd_sprite* sprite = &disp->sprites[disp->max_sprite++];
+  while (disp->sprites[disp->max_sprite].used)
+  {
+    if (++disp->max_sprite == PSD_MAX_SPRITES) disp->max_sprite = 0;
+  }
+
+  psd_sprite* sprite = &disp->sprites[disp->max_sprite];
+  if (++disp->max_sprite == PSD_MAX_SPRITES) disp->max_sprite = 0;
+
   sprite->pos = pos;
   sprite->size = size;
   sprite->data = data;
   sprite->data_len = data_len;
   sprite->depth = 0;
+  sprite->used = 1;
   sprite->enabled = 1;
   sprite->draw = 1;
 
@@ -62,6 +75,15 @@ void ps_display_move_sprite(PS_DISPLAY* disp, psd_sprite* sprite, psd_vec pos)
 
     // TODO Overlapping sprites.
   }
+}
+
+void ps_display_remove_sprite(PS_DISPLAY* disp, psd_sprite* sprite)
+{
+  ps_display_draw_frect(disp, sprite->pos, sprite->size, disp->background);
+  sprite->used = 0;
+  sprite->draw = 0;
+
+  // TODO Overlapping sprites.
 }
 
 void ps_display_render(PS_DISPLAY* disp)
