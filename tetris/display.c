@@ -28,6 +28,7 @@ void ps_display_init(PS_DISPLAY* disp, psd_colour bg)
   st7789_trigger_transfer(&disp->st);
   st7789_wait_for_transfer_complete(&disp->st);
 
+  disp->max_sprite = 0;
   memset(disp->sprites, 0, sizeof(disp->sprites));
 }
 
@@ -89,7 +90,7 @@ void ps_display_remove_sprite(PS_DISPLAY* disp, psd_sprite* sprite)
 void ps_display_render(PS_DISPLAY* disp)
 {
   // Queue draw for sprites
-  for (uint16_t i = 0; i < disp->max_sprite; ++i)
+  for (uint16_t i = 0; i < PSD_MAX_SPRITES; ++i)
   {
     psd_sprite* sprite = &disp->sprites[i];
     if (sprite->draw)

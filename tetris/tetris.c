@@ -25,6 +25,20 @@ const uint32_t sd_one_box_red[BOX_SIZE * BOX_SIZE / 2] =
   0x8000a000, 0xa000a000, 0xa000a000, 0xa000a000, 0xa0008000,
   0x80008000, 0x80008000, 0x80008000, 0x80008000, 0x80008000
 };
+const uint32_t sd_one_box_green[BOX_SIZE * BOX_SIZE / 2] =
+{
+  0x04000400, 0x04000400, 0x04000400, 0x04000400, 0x04000400,
+  0x04000500, 0x05000500, 0x05000500, 0x05000500, 0x05000400,
+  0x04000500, 0x06000600, 0x06000600, 0x06000600, 0x05000400,
+  0x04000500, 0x06003706, 0x37063706, 0x37060600, 0x05000400,
+  0x04000500, 0x06003706, 0x37063706, 0x37060600, 0x05000400,
+  0x04000500, 0x06003706, 0x37063706, 0x37060600, 0x05000400,
+  0x04000500, 0x06003706, 0x37063706, 0x37060600, 0x05000400,
+  0x04000500, 0x06000600, 0x06000600, 0x06000600, 0x05000400,
+  0x04000500, 0x05000500, 0x05000500, 0x05000500, 0x05000400,
+  0x04000400, 0x04000400, 0x04000400, 0x04000400, 0x04000400
+};
+const uint32_t* sd_box_data[] = { sd_one_box_red, sd_one_box_green };
 
 #define SHAPE_LINE   0
 #define SHAPE_LEFTL  1
@@ -61,11 +75,12 @@ void make_piece(Piece* piece, uint8_t shape)
   int j = 0;
   psd_vec offset = { 3 * BOX_SIZE, 0 };
   const psd_vec size = { BOX_SIZE, BOX_SIZE };
+  const uint32_t* sd_box_data_ptr = sd_box_data[rand() % 2];
   for (int i = 7; i > 0; --i)
   {
     if ((1 << i) & layout[shape])
     {
-      piece->sprites[j++] = ps_display_add_sprite(&disp, offset, size, sd_one_box_red, sizeof(sd_one_box_red) / sizeof(uint32_t));
+      piece->sprites[j++] = ps_display_add_sprite(&disp, offset, size, sd_box_data_ptr, sizeof(sd_one_box_red) / sizeof(uint32_t));
     }
     if (i == 4)
     {
